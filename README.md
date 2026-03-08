@@ -60,3 +60,4 @@ The app resolves Frappe base URL in this order:
 1. Query param `?frappe_base=https://your-site`
 2. `VITE_FRAPPE_BASE_URL` from `.env`
 3. `window.location.origin`
+# react_dashboard
