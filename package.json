@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync:frappe": "bash ./scripts/sync-to-frappe-assets.sh",
+    "build:frappe": "npm run build && npm run sync:frappe"
   },
   "dependencies": {
     "highcharts": "^12.1.2",

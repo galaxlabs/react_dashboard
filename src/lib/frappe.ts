@@ -2,6 +2,13 @@ export async function callFrappe<T = unknown>(
   method: string,
   args?: Record<string, unknown>
 ): Promise<T> {
+  const getCookie = (name: string): string => {
+    const key = `${name}=`;
+    const parts = document.cookie.split(";").map((v) => v.trim());
+    const match = parts.find((p) => p.startsWith(key));
+    return match ? decodeURIComponent(match.slice(key.length)) : "";
+  };
+
   const search = new URLSearchParams(window.location.search);
   const fromQuery = (search.get("frappe_base") || "").trim().replace(/\/+$/, "");
   const fromEnv = String(import.meta.env.VITE_FRAPPE_BASE_URL || "")
@@ -22,7 +29,8 @@ export async function callFrappe<T = unknown>(
     headers: {
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       Accept: "application/json",
-      "X-Frappe-CSRF-Token": (window as { csrf_token?: string }).csrf_token || "",
+      "X-Frappe-CSRF-Token":
+        (window as { csrf_token?: string }).csrf_token || getCookie("csrftoken") || "",
     },
     body: body.toString(),
   });

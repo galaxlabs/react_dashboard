@@ -27,6 +27,26 @@ npm run build
 npm run preview
 ```
 
+## Build + Ship To Frappe Assets (Plug-and-Play)
+
+No Nginx change is required for this mode.
+
+```bash
+npm run build:frappe
+```
+
+This copies `dist/` to:
+- `/home/dg/db-b/apps/galaxy_ui/galaxy_ui/public/react_dashboard`
+
+Open:
+- `/assets/galaxy_ui/react_dashboard/index.html`
+
+Override target:
+
+```bash
+TARGET_DIR=/custom/path/react_dashboard npm run build:frappe
+```
+
 ## Deploy to Vercel
 
 1. Push this folder to your git repository.
