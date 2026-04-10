@@ -9,13 +9,10 @@ export async function callFrappe<T = unknown>(
     return match ? decodeURIComponent(match.slice(key.length)) : "";
   };
 
-  const search = new URLSearchParams(window.location.search);
-  const fromQuery = (search.get("frappe_base") || "").trim().replace(/\/+$/, "");
-  const fromEnv = String(import.meta.env.VITE_FRAPPE_BASE_URL || "")
-    .trim()
-    .replace(/\/+$/, "");
-  const base = fromQuery || fromEnv || window.location.origin;
-  const url = `${base}/api/method/${method}`;
+  // In dev, Vite proxies /api → backend so we use relative URLs (no CORS).
+  // In production (served from Frappe or Vercel rewrite), also use relative.
+  const url = `/api/method/${method}`;
+
   const body = new URLSearchParams();
   if (args) {
     for (const [key, value] of Object.entries(args)) {
@@ -30,7 +27,7 @@ export async function callFrappe<T = unknown>(
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       Accept: "application/json",
       "X-Frappe-CSRF-Token":
-        (window as { csrf_token?: string }).csrf_token || getCookie("csrftoken") || "",
+        (window as { csrf_token?: string }).csrf_token || getCookie("csrftoken") || "Guest",
     },
     body: body.toString(),
   });
