@@ -9,8 +9,6 @@ export async function callFrappe<T = unknown>(
     return match ? decodeURIComponent(match.slice(key.length)) : "";
   };
 
-  // In dev, Vite proxies /api → backend so we use relative URLs (no CORS).
-  // In production (served from Frappe or Vercel rewrite), also use relative.
   const url = `/api/method/${method}`;
 
   const body = new URLSearchParams();
@@ -20,14 +18,23 @@ export async function callFrappe<T = unknown>(
     }
   }
 
+  // API token auth for dev (set VITE_API_KEY and VITE_API_SECRET in .env.local)
+  const apiKey    = import.meta.env.VITE_API_KEY    as string | undefined;
+  const apiSecret = import.meta.env.VITE_API_SECRET as string | undefined;
+  const authHeader: Record<string, string> = apiKey && apiSecret
+    ? { Authorization: `token ${apiKey}:${apiSecret}` }
+    : {
+        "X-Frappe-CSRF-Token":
+          (window as { csrf_token?: string }).csrf_token || getCookie("csrftoken") || "Guest",
+      };
+
   const res = await fetch(url, {
     method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       Accept: "application/json",
-      "X-Frappe-CSRF-Token":
-        (window as { csrf_token?: string }).csrf_token || getCookie("csrftoken") || "Guest",
+      ...authHeader,
     },
     body: body.toString(),
   });
